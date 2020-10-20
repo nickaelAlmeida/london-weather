@@ -18,6 +18,11 @@ I think that with more time I could improve the layout, use some libraries to ha
 In the project directory, you can run:
 
 
+### `yarn`
+
+To install the dependencies.
+
+
 ### `yarn start`
 
 Runs the app in the development mode.<br />
