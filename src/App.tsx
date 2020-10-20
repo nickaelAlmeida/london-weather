@@ -1,25 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useCallback, useState } from 'react';
+import { getWeatherNow, getWeatherNextDays } from './services/openWeather';
+import IWeatherData from './interfaces/IWeatherData';
 
-function App() {
+import Clock from './components/Clock';
+import Progressbar from './components/Progressbar';
+import NextDaysList from './components/NextDaysList';
+
+import GlobalStyle, { Header } from './styles/global';
+
+
+const App: React.FC = () => {
+
+  const [seconds, setSeconds]                       = useState(60);
+  const [currentTemperature, setCurrentTemperature] = useState('-');
+  const [nextDays, setNextDays]                     = useState<IWeatherData[]>([]);
+
+
+  useEffect(() => {
+    updateWeather();
+  }, []);
+
+  useEffect(() => {
+    if (seconds > 0) {
+      setTimeout(() => setSeconds(seconds - 1), 1000);
+    } else {
+      updateWeather();
+      setSeconds(60);
+    }
+  }, [seconds]);
+
+  const updateWeather = useCallback(async () => {
+    await getWeatherNow({
+      success : async (temp) => {
+        setCurrentTemperature(temp);
+      }
+    });
+
+    await getWeatherNextDays({
+      success : async (nextDaysList) => {
+        setNextDays(nextDaysList);
+      }
+    });
+  }, []);
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header>
+        <h1>LONDON</h1>
+        <Clock />
+        <div>{currentTemperature}°</div>
+      </Header>
+
+      <Progressbar seconds={seconds} />
+      <NextDaysList list={nextDays} />
+
+      <GlobalStyle />
+    </>
   );
 }
 
